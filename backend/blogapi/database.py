@@ -20,11 +20,14 @@ post_table = sqlalchemy.Table(
     sqlalchemy.Column("title", sqlalchemy.String),
     sqlalchemy.Column("content", sqlalchemy.String),
     sqlalchemy.Column("author_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id")),
-    sqlalchemy.Column("publication_date", sqlalchemy.DateTime),
-    sqlalchemy.Column("Calification", sqlalchemy.Integer),
+    sqlalchemy.Column("publication_date", sqlalchemy.String),
+    sqlalchemy.Column("private", sqlalchemy.Boolean)
 )
 #TO-DO: Add tag table WITH MANY TO MANY RELATIONSHIP WITH POSTS
 #tag_table = sqalchemy.Table()
+
+#TO-DO: Add calification for relation MANY TO MANY RELATIONSHIP WITH POSTS AND USERS
+
 
 engine = sqlalchemy.create_engine(config.DATABASE_URL, connect_args={"check_same_thread": False})
 
