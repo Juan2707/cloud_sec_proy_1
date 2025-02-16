@@ -13,6 +13,15 @@ user_table = sqlalchemy.Table(
     sqlalchemy.Column("password", sqlalchemy.String),
 )
 
+calification_table = sqlalchemy.Table(
+    "califications",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("user_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False),
+    sqlalchemy.Column("post_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("posts.id"), nullable=False),
+    sqlalchemy.Column("calification", sqlalchemy.Float)
+)
+
 post_table = sqlalchemy.Table(
     "posts",
     metadata,
@@ -23,10 +32,21 @@ post_table = sqlalchemy.Table(
     sqlalchemy.Column("publication_date", sqlalchemy.String),
     sqlalchemy.Column("private", sqlalchemy.Boolean)
 )
-#TO-DO: Add tag table WITH MANY TO MANY RELATIONSHIP WITH POSTS
-#tag_table = sqalchemy.Table()
 
-#TO-DO: Add calification for relation MANY TO MANY RELATIONSHIP WITH POSTS AND USERS
+tag_table = sqlalchemy.Table(
+    "tags",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("name", sqlalchemy.String)
+)
+
+post_tag_table = sqlalchemy.Table(
+    "post_tags",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("post_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("posts.id")),
+    sqlalchemy.Column("tag_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("tags.id"))
+)
 
 
 engine = sqlalchemy.create_engine(config.DATABASE_URL, connect_args={"check_same_thread": False})
