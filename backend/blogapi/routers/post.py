@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Annotated
 from datetime import datetime
 from blogapi.database import post_table, database, calification_table, tag_table, post_tag_table, user_table
-from blogapi.models.post import UserPost, UserPostIn, CalificationPost, CalificationPostIn, UserPostWithCalificationAndMyCalification, Tag, TagPost, TagIn, TagPostIn
+from blogapi.models.post import UserPost, UserPostIn, CalificationPost, CalificationPostIn, UserPostWithMyCalification, Tag, TagPost, TagIn, TagPostIn
 from blogapi.models.user import User, UserWithPosts
 from blogapi.security import get_current_user
 from sqlalchemy import select, func
@@ -10,9 +10,9 @@ from sqlalchemy import select, func
 router = APIRouter()
 
 
-async def get_avarage_calification(post_id: int):
-    query = select(func.avg(calification_table.c.calification).label('average_calification')).where(calification_table.c.post_id == post_id)
-    return await database.fetch_val(query)
+#async def get_avarage_calification(post_id: int):
+#    query = select(func.avg(calification_table.c.calification).label('average_calification')).where(calification_table.c.post_id == post_id)
+#    return await database.fetch_val(query)
 
 async def get_calification_by_user(post_id: int, user_id: int):
     query = calification_table.select().where(
@@ -35,22 +35,21 @@ async def verify_post_owner(post_id: int, current_user: User):
         raise HTTPException(status_code=403, detail="You don't have permission to access this post")
     return post
 
-@router.get("/post/{post_id}/calification", response_model=UserPostWithCalificationAndMyCalification)
+@router.get("/post/{post_id}/calification", response_model=UserPostWithMyCalification)
 async def get_post_califications(post_id: int, current_user: Annotated[User, Depends(get_current_user)]):
     post = await find_post(post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     if post["private"] and post["author_id"] != current_user.id:
         raise HTTPException(status_code=403, detail="You don't have permission to access this post")
-    calification = await get_avarage_calification(post_id)
     my_calification = await get_calification_by_user(post_id, current_user.id)
     if not my_calification:
         my_calification = None
-    return {**post, "calification": calification, "my_calification": my_calification}
+    return {**post, "my_calification": my_calification}
 
 @router.post("/post",response_model=UserPost, status_code=201)
 async def create_post(post: UserPostIn, current_user: Annotated[User, Depends(get_current_user)]):
-    data = {**post.dict(), "author_id": current_user.id, "publication_date": datetime.now().isoformat()}
+    data = {**post.dict(), "author_id": current_user.id, "publication_date": datetime.now().isoformat(), "avg_calification": 0, "amount_califications": 0}
     query = post_table.insert().values(data)
     last_record_id = await database.execute(query)
     return {**data, "id": last_record_id}
@@ -64,20 +63,6 @@ async def get_all_posts(current_user: Annotated[User, Depends(get_current_user)]
 @router.get("/post/public", response_model= list[UserPost])
 async def get_all_public_posts(current_user: Annotated[User, Depends(get_current_user)]):
     query = post_table.select().where(post_table.c.private == False)
-    return await database.fetch_all(query)
-
-#Obtener todos los posts de un usuario
-#TO-DO: Como garantizo que este endpoint solo sea accesible a usuarios autenticados
-@router.get("/user/{author_id}/posts", response_model=list[UserPost])
-async def get_user_posts(author_id: str):
-    query = post_table.select().where(post_table.c.author_id == author_id)
-    return await database.fetch_all(query)
-
-#get user public posts
-#TO-DO: Como garantizo que este endpoint solo sea accesible a usuarios autenticados
-@router.get("/user/{author_id}/posts/public", response_model=list[UserPost])
-async def get_user_public_posts(author_id: str):
-    query = post_table.select().where(post_table.c.author_id == author_id, post_table.c.private == False)
     return await database.fetch_all(query)
 
 #Si esto sirve quitar el endpoint de arriba
@@ -126,6 +111,22 @@ async def delete_post(post_id: int, current_user: Annotated[User, Depends(get_cu
     await database.execute(query)
     return {"message": "Post deleted successfully"}
 
+#make post public
+@router.patch("/post/{post_id}/public")
+async def make_post_public(post_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    await verify_post_owner(post_id, current_user)
+    query = post_table.update().where(post_table.c.id == post_id).values(private=False)
+    await database.execute(query)
+    return {"message": "Post is now public"}
+
+#make post private
+@router.patch("/post/{post_id}/private")
+async def make_post_private(post_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    await verify_post_owner(post_id, current_user)  
+    query = post_table.update().where(post_table.c.id == post_id).values(private=True)
+    await database.execute(query)
+    return {"message": "Post is now private"}
+
 @router.post("/calificate", response_model=CalificationPost, status_code=201)
 async def calificate_post(calification: CalificationPostIn, current_user: Annotated[User, Depends(get_current_user)]):
     post = await find_post(calification.post_id)
@@ -139,13 +140,24 @@ async def calificate_post(calification: CalificationPostIn, current_user: Annota
         raise HTTPException(status_code=400, detail="You have already rated this post")
     data = {**calification.dict(), "user_id": current_user.id}
     query = calification_table.insert().values(data)
-
     last_record_id = await database.execute(query)
+    #actualizar el promedio de calificaciones en la tabla post_table usando avg_calification, amount_califications y calification.calification
+    query = post_table.update().where(post_table.c.id == calification.post_id).values(
+        avg_calification = (post["avg_calification"] * post["amount_califications"] + calification.calification) / (post["amount_califications"] + 1),
+        amount_califications = post["amount_califications"] + 1
+    )
+    await database.execute(query)
     return {**data, "id": last_record_id}
 
 #editar calificacion
 @router.patch("/calificate/{calification_id}", response_model=CalificationPost)
 async def update_calification(calification_id: int, calification: CalificationPostIn, current_user: Annotated[User, Depends(get_current_user)]):
+    #obtener vieja calificacion
+    query = calification_table.select().where(calification_table.c.id == calification_id)
+    old_calification = await database.fetch_one(query)
+    #Check if the user is the owner of the calification
+    if old_calification["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this calification")
     query = post_table.select().where(post_table.c.id == calification.post_id)
     post = await database.fetch_one(query)
     if not post:
@@ -154,15 +166,42 @@ async def update_calification(calification_id: int, calification: CalificationPo
         raise HTTPException(status_code=403, detail="You don't have permission to access this post")
     query = calification_table.update().where(calification_table.c.id == calification_id).values(calification.dict(exclude_unset=True))
     await database.execute(query)
+    #actualizar el promedio de calificaciones en la tabla post_table usando avg_calification, amount_califications y calification.calification
+    query = post_table.update().where(post_table.c.id == calification.post_id).values(
+        avg_calification = ((post["avg_calification"] * post["amount_califications"]) - old_calification["calification"] + calification.calification) / post["amount_califications"],
+    )
+    await database.execute(query)
     query = calification_table.select().where(calification_table.c.id == calification_id)
     return await database.fetch_one(query)
 
 #eliminar calificación de un post
 @router.delete("/calificate/{calification_id}")
 async def delete_calification(calification_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    query = calification_table.select().where(calification_table.c.id == calification_id)
+    calification = await database.fetch_one(query)
+    if not calification:
+        raise HTTPException(status_code=404, detail="Calification not found")
+    #Check if the user is the owner of the calification
+    if calification["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this calification")
+    #recalcular el promedio de calificaciones en la tabla post_table usando avg_calification, amount_califications y calification.calification
+    post = await find_post(calification["post_id"])
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    query = post_table.update().where(post_table.c.id == calification["post_id"]).values(
+        avg_calification = (post["avg_calification"] * post["amount_califications"] - calification["calification"]) / (post["amount_califications"] - 1),
+        amount_califications = post["amount_califications"] - 1
+    )
+    await database.execute(query)
     query = calification_table.delete().where(calification_table.c.id == calification_id).where(calification_table.c.user_id == current_user.id)
     await database.execute(query)
     return {"message": "Calification deleted successfully"}
+
+#get my califications in a specific post
+@router.get("/calificate/{post_id}", response_model=list[CalificationPost])
+async def get_my_califications(post_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    query = calification_table.select().where(calification_table.c.post_id == post_id, calification_table.c.user_id == current_user.id)
+    return await database.fetch_all(query)
 
 #crear etiqueta
 @router.post("/tag", response_model=Tag, status_code=201)

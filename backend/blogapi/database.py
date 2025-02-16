@@ -30,7 +30,9 @@ post_table = sqlalchemy.Table(
     sqlalchemy.Column("content", sqlalchemy.String),
     sqlalchemy.Column("author_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id")),
     sqlalchemy.Column("publication_date", sqlalchemy.String),
-    sqlalchemy.Column("private", sqlalchemy.Boolean)
+    sqlalchemy.Column("private", sqlalchemy.Boolean),
+    sqlalchemy.Column("avg_calification", sqlalchemy.Float),
+    sqlalchemy.Column("amount_califications", sqlalchemy.Integer)
 )
 
 tag_table = sqlalchemy.Table(

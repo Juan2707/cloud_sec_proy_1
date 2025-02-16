@@ -10,11 +10,12 @@ class UserPost(UserPostIn):
     id: int
     author_id: float
     publication_date: str
+    avg_calification: float
+    amount_califications: int
     class Config:
         from_attributes = True
 
-class UserPostWithCalificationAndMyCalification(UserPost):
-    calification: float
+class UserPostWithMyCalification(UserPost):
     my_calification: Optional[float]
     class Config:
         from_attributes = True
@@ -46,4 +47,8 @@ class TagPost(TagPostIn):
     id: int
     class Config:
         from_attributes = True
+
+class CalificationIn(BaseModel):
+    calification: float
+    post_id: int
 
