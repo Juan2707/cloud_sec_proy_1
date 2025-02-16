@@ -10,9 +10,9 @@ from sqlalchemy import select, func
 router = APIRouter()
 
 
-#async def get_avarage_calification(post_id: int):
-#    query = select(func.avg(calification_table.c.calification).label('average_calification')).where(calification_table.c.post_id == post_id)
-#    return await database.fetch_val(query)
+async def check_if_tag_exists(tag_name: str):
+    query = tag_table.select().where(tag_table.c.name == tag_name)
+    return await database.fetch_one(query)
 
 async def get_calification_by_user(post_id: int, user_id: int):
     query = calification_table.select().where(
@@ -206,6 +206,8 @@ async def get_my_califications(post_id: int, current_user: Annotated[User, Depen
 #crear etiqueta
 @router.post("/tag", response_model=Tag, status_code=201)
 async def create_tag(tag: TagIn,  current_user: Annotated[User, Depends(get_current_user)]):
+    if await check_if_tag_exists(tag.name):
+        raise HTTPException(status_code=400, detail="Tag already exists")
     query = tag_table.insert().values(tag.dict())
     last_record_id = await database.execute(query)
     return {**tag.dict(), "id": last_record_id}

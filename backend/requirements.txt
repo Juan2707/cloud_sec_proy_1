@@ -7,3 +7,7 @@ python-jose
 python-multipart
 passlib[bcrypt]
 pydantic-settings
+pydantic[email]
+pydantic[constr]
+pydantic[validator]
+bleach

@@ -1,10 +1,16 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Optional
+import bleach
 
 class UserPostIn(BaseModel):
     title: str 
     content: str
     private: bool
+
+    @validator('title', 'content')
+    def clean_html(cls, v):
+        return bleach.clean(v)
+
     
 class UserPost(UserPostIn):
     id: int
@@ -24,6 +30,12 @@ class UserPostWithMyCalification(UserPost):
 class CalificationPostIn(BaseModel):
     post_id: int
     calification: float
+
+    @validator('calification')
+    def validate_calification(cls, v):
+        if v < 0 or v > 5:
+            raise ValueError('Calification must be between 0 and 5')
+        return v
 
 class CalificationPost(CalificationPostIn):
     id: int
