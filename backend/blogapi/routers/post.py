@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends, Body
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Annotated
 from datetime import datetime
-from blogapi.database import post_table, database, calification_table, tag_table, post_tag_table
+from blogapi.database import post_table, database, calification_table, tag_table, post_tag_table, user_table
 from blogapi.models.post import UserPost, UserPostIn, CalificationPost, CalificationPostIn, UserPostWithCalificationAndMyCalification, Tag, TagPost, TagIn, TagPostIn
 from blogapi.models.user import User, UserWithPosts
 from blogapi.security import get_current_user
@@ -40,6 +40,8 @@ async def get_post_califications(post_id: int, current_user: Annotated[User, Dep
     post = await find_post(post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    if post["private"] and post["author_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this post")
     calification = await get_avarage_calification(post_id)
     my_calification = await get_calification_by_user(post_id, current_user.id)
     if not my_calification:
@@ -54,23 +56,54 @@ async def create_post(post: UserPostIn, current_user: Annotated[User, Depends(ge
     return {**data, "id": last_record_id}
 
 @router.get("/post", response_model= list[UserPost])
-async def get_all_posts():
+async def get_all_posts(current_user: Annotated[User, Depends(get_current_user)]):
     query = post_table.select()
     return await database.fetch_all(query)
 
+#get all public posts
+@router.get("/post/public", response_model= list[UserPost])
+async def get_all_public_posts(current_user: Annotated[User, Depends(get_current_user)]):
+    query = post_table.select().where(post_table.c.private == False)
+    return await database.fetch_all(query)
+
+#Obtener todos los posts de un usuario
+#TO-DO: Como garantizo que este endpoint solo sea accesible a usuarios autenticados
 @router.get("/user/{author_id}/posts", response_model=list[UserPost])
 async def get_user_posts(author_id: str):
     query = post_table.select().where(post_table.c.author_id == author_id)
     return await database.fetch_all(query)
 
-@router.get("/post/user/posts", response_model= UserWithPosts)
-async def get_user_with_posts(current_user: Annotated[User, Depends(get_current_user)]):
-    return {"user":current_user,
-            "posts": await get_user_posts(current_user.id)}
+#get user public posts
+#TO-DO: Como garantizo que este endpoint solo sea accesible a usuarios autenticados
+@router.get("/user/{author_id}/posts/public", response_model=list[UserPost])
+async def get_user_public_posts(author_id: str):
+    query = post_table.select().where(post_table.c.author_id == author_id, post_table.c.private == False)
+    return await database.fetch_all(query)
+
+#Si esto sirve quitar el endpoint de arriba
+@router.get("/post/user/{author_id}/posts", response_model= UserWithPosts)
+async def get_user_with_posts(author_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+    if author_id == f"{current_user.id}":
+        query = post_table.select().where(post_table.c.author_id == author_id)
+        posts = await database.fetch_all(query)
+        print(posts)
+        data = {"user":current_user,
+                "posts": posts}
+        return data
+    else:
+        query = user_table.select().where(user_table.c.id == author_id)
+        user = await database.fetch_one(query)
+        data = {"user":user,
+                "posts": await database.fetch_all(post_table.select().where(post_table.c.author_id == author_id, post_table.c.private == False))}
+        return data
+
 
 @router.get("/post/{post_id}", response_model=UserPost)
-async def get_post(post_id: int):
-    return await find_post(post_id)
+async def get_post(post_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    post = await find_post(post_id)
+    if post["private"] and post["author_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this post")
+    return post
 
 @router.patch("/post/{post_id}", response_model=UserPost)
 async def update_post(post_id: int, post: UserPostIn, current_user: Annotated[User, Depends(get_current_user)]):
@@ -98,6 +131,8 @@ async def calificate_post(calification: CalificationPostIn, current_user: Annota
     post = await find_post(calification.post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+    if post["private"] and post["author_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this post")
     #verificar que el usuario no haya calificado antes
     my_calification = await get_calification_by_user(calification.post_id, current_user.id)
     if my_calification:
@@ -111,6 +146,12 @@ async def calificate_post(calification: CalificationPostIn, current_user: Annota
 #editar calificacion
 @router.patch("/calificate/{calification_id}", response_model=CalificationPost)
 async def update_calification(calification_id: int, calification: CalificationPostIn, current_user: Annotated[User, Depends(get_current_user)]):
+    query = post_table.select().where(post_table.c.id == calification.post_id)
+    post = await database.fetch_one(query)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if post["private"] and post["author_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this post")
     query = calification_table.update().where(calification_table.c.id == calification_id).values(calification.dict(exclude_unset=True))
     await database.execute(query)
     query = calification_table.select().where(calification_table.c.id == calification_id)
@@ -125,37 +166,58 @@ async def delete_calification(calification_id: int, current_user: Annotated[User
 
 #crear etiqueta
 @router.post("/tag", response_model=Tag, status_code=201)
-async def create_tag(tag: TagIn):
+async def create_tag(tag: TagIn,  current_user: Annotated[User, Depends(get_current_user)]):
     query = tag_table.insert().values(tag.dict())
     last_record_id = await database.execute(query)
     return {**tag.dict(), "id": last_record_id}
 
 #obtener todas las etiquetas
 @router.get("/tags", response_model=list[Tag])
-async def get_all_tags():
+async def get_all_tags( current_user: Annotated[User, Depends(get_current_user)]):
     query = tag_table.select()
     return await database.fetch_all(query)
 
 #obtener etiqueta por id
 @router.get("/tag/{tag_id}", response_model=Tag)
-async def get_tag(tag_id: int):
+async def get_tag(tag_id: int, current_user: Annotated[User, Depends(get_current_user)]):
     query = tag_table.select().where(tag_table.c.id == tag_id)
     return await database.fetch_one(query)
 
 #asingar etiqueta a un post
 @router.post("/tag/post", response_model=TagPost, status_code=201)
-async def tag_post(tag_post: TagPostIn):
+async def create_tag_post(tag_post: TagPostIn, current_user: Annotated[User, Depends(get_current_user)]):
+    await verify_post_owner(tag_post.post_id, current_user)
     query = post_tag_table.insert().values(tag_post.dict())
     last_record_id = await database.execute(query)
     return {**tag_post.dict(), "id": last_record_id}
 
 #obtener todas las etiquetas de un post
 @router.get("/tag/post/{post_id}", response_model=list[Tag])
-async def get_post_tags(post_id: int):
+async def get_post_tags(post_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    post = await find_post(post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if post["private"] and post["author_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You don't have permission to access this post")
     query = tag_table.join(post_tag_table).select().where(post_tag_table.c.post_id == post_id)
     return await database.fetch_all(query)
 
 @router.get("/post/tag/{tag_id}", response_model=list[UserPost])
-async def get_post_by_tag(tag_id: int):
-    query = post_table.join(post_tag_table).select().where(post_tag_table.c.tag_id == tag_id)
+async def get_post_by_tag(tag_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    #Ademas la query debe filtrar los post privados
+    query = post_table.join(post_tag_table).select().where(post_tag_table.c.tag_id == tag_id, post_table.c.private == False)
     return await database.fetch_all(query)
+
+#get user posts by tag
+@router.get("/user/{author_id}/posts/tag/{tag_id}", response_model=UserWithPosts)
+async def get_user_posts_by_tag(author_id: str, tag_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    data = {}
+    if author_id == f"{current_user.id}":
+        data = {"user":current_user,
+                "posts": await database.fetch_all(post_table.join(post_tag_table).select().where(post_tag_table.c.tag_id == tag_id, post_table.c.author_id == author_id))}
+    else:
+        query = user_table.select().where(user_table.c.id == author_id)
+        user = await database.fetch_one(query)
+        data = {"user":user,
+                "posts": await database.fetch_all(post_table.join(post_tag_table).select().where(post_tag_table.c.tag_id == tag_id, post_table.c.author_id == author_id, post_table.c.private == False))}
+    return data
