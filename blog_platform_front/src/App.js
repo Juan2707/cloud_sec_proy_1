@@ -1,14 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './views/Home';
-import Login from './views/Login'; 
-import Register from './views/Register';
-import Feed from './views/Feed';
+import Login from './views/Login/Login'; 
+import Register from './views/Register/Register';
+import Feed from './views/Feed/Feed';
 import CreatePost from './views/CreatePost';
 import EditPost from './views/EditPost';
+import { useAuth, AuthProvider } from './components/AuthContext';
+import { Navigate } from 'react-router-dom';
+
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
   return (
+    <AuthProvider>
     <Router>
       <div>
         <Routes>
@@ -22,6 +30,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 
