@@ -1,32 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Post from '../../components/Post';
 //Aqui iria el import de la api
+import { get_all_public_posts } from '../../services/Api';
+import { useAuth } from '../../components/AuthContext';
+
+
 
 function Feed() {
-  const [posts, setPosts] = useState([
-    { id: 1, title: "Post 1", content: "Content of post 1", author_id: "1", publication_date: "2022-01-01",avg_calification:5, ammount_califications:1 },
-    { id: 2, title: "Post 2", content: "Content of post 2", author_id: "2", publication_date: "2022-02-01",avg_calification:4, ammount_califications:1 },
-    { id: 3, title: "Post 2", content: "Content of post 3", author_id: "2", publication_date: "2022-02-01",avg_calification:3, ammount_califications:1 },
-    { id: 4, title: "Post 2", content: "Content of post 4", author_id: "2", publication_date: "2022-02-01",avg_calification:2,  ammount_califications:1 },
-    { id: 5, title: "Post 2", content: "Content of post 5", author_id: "2", publication_date: "2022-02-01",avg_calification:1, ammount_califications:1 },
-  ]);
+  const location = useLocation();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  //Para cuando no sea con mockup
-  //const [posts, setPosts] = useState([]);
-//Revisar post conexion con api, el delete es con backend, debe haber una forma de solo hacer refresh de la pagina
-  const handleDelete = (postId) => {
-    const updatedPosts = posts.filter(post => post.id !== postId);
-    setPosts(updatedPosts);
-    console.log('Post deleted:', postId);
-  };
+  const [posts, setPosts] = useState([]);
+  
+  useEffect(() =>{
+    const cargarPosts = async() =>{
+      try{
+        const data = await get_all_public_posts(user.access_token);
+        setPosts(data.data);
+      }
+      catch(error){
+        console.error('Error fetching posts', error);
+        if(error.response.status === 401){
+          navigate('/login');
+        }
+        //Poblar con un post de ejemplo
+        setPosts([{
+          id: 1,
+          title: 'Post de ejemplo',
+          content: 'Este es un post de ejemplo',
+          author_id: 1,
+          date: '2021-10-01'
+        }]);
+      }
+    };
+
+    cargarPosts();
+  },[location]);
+  //Revisar post conexion con api, el delete es con backend, debe haber una forma de solo hacer refresh de la pagina
+
 
   return (
     <div>
       <h1>Feed</h1>
-      {posts.map(post => (
-        <Post key={post.id} {...post} onDelete={handleDelete} />
+      {posts.map((post) => (
+        <Post key={post.id} data={post} />
       ))}
+      <button onClick={() => navigate('/create')}>Crear Post</button>
     </div>
   );
 }

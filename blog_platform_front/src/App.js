@@ -4,8 +4,8 @@ import Home from './views/Home';
 import Login from './views/Login/Login'; 
 import Register from './views/Register/Register';
 import Feed from './views/Feed/Feed';
-import CreatePost from './views/CreatePost';
-import EditPost from './views/EditPost';
+import CreatePost from './views/Feed/CreatePost';
+//import EditPost from './views/EditPost';
 import { useAuth, AuthProvider } from './components/AuthContext';
 import { Navigate } from 'react-router-dom';
 
@@ -15,17 +15,19 @@ const PrivateRoute = ({ children }) => {
 };
 
 function App() {
+  //<Route path="/edit/:postId" element={<PrivateRoute><EditPost /></PrivateRoute> }/>
   return (
+
     <AuthProvider>
     <Router>
       <div>
         <Routes>
-          <Route path="/edit/:postId" element={<EditPost />} />
-          <Route path="/create" element={<CreatePost />} />
-          <Route path="/feed" element={<Feed />} />
+          
+          <Route path="/create" element={<PrivateRoute><CreatePost /></PrivateRoute>} />
+          <Route path="/feed" element={<PrivateRoute><Feed /></PrivateRoute>} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home />} /> {/* Actualización aquí */}
+          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} /> {/* Actualización aquí */}
           {/* Futuras rutas aquí */}
         </Routes>
       </div>

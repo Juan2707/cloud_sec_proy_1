@@ -1,3 +1,10 @@
+
+/*
+
+En este componente, se simula la edición de un post. Se obtiene el ID del post desde la URL y se simula la carga de los datos del post a editar. Se muestra un formulario con los campos del post y un botón para enviar los datos actualizados al backend. Al enviar el formulario, se redirige al feed principal.
+fin del comentario.
+
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TagCreation from '../components/TagCreation';
@@ -63,3 +70,5 @@ function EditPost() {
 }
 
 export default EditPost;
+
+*/

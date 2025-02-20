@@ -1,19 +1,14 @@
 import React from 'react';
 
-function Post({ id, title, content, author, date, onDelete }) {
-  const handleDelete = () => {
-    // Aquí iría la lógica para llamar a la API y eliminar el post
-    console.log('Deleting post:', id);
-    onDelete(id); // Función pasada como prop para manejar la eliminación
-  };
-
+function Post({data }) {
+  // Conseguir con author_id el nombre del autor
   return (
     <div>
-      <h2>{title}</h2>
-      <p>{content}</p>
-      <small>By {author} on {date}</small>
-      {/* Solo muestra el botón de eliminar si es el autor (esto necesita ajustes reales de autenticación) */}
-      {author === "Author Name" && <button onClick={handleDelete}>Delete</button>}
+      <h2>{data.title}</h2>
+      <p>{data.content}</p>
+      <small>By {data.author_id} on {data.publication_date}</small>
+      <h2>With Calification {data.avg_calification} of {data.amount_califications} users</h2>
+  
     </div>
   );
 }

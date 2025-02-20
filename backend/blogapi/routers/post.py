@@ -65,7 +65,7 @@ async def get_all_public_posts(current_user: Annotated[User, Depends(get_current
     query = post_table.select().where(post_table.c.private == False)
     return await database.fetch_all(query)
 
-#Si esto sirve quitar el endpoint de arriba
+
 @router.get("/post/user/{author_id}/posts", response_model= UserWithPosts)
 async def get_user_with_posts(author_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if author_id == f"{current_user.id}":
