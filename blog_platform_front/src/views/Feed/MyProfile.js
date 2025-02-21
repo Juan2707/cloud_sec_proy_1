@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../components/AuthContext';
 import { get_my_user, getPostsByUser } from '../../services/Api';
 import MyPost from '../../components/MyPost';

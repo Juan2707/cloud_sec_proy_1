@@ -6,6 +6,7 @@ import Register from './views/Register/Register';
 import Feed from './views/Feed/Feed';
 import CreatePost from './views/Feed/CreatePost';
 import MyProfile from './views/Feed/MyProfile';
+import ThirdPersonProfile from './views/Feed/ThirdPersonProfile';
 import EditPost from './views/Feed/EditPost';
 import DetailedPost from './components/DetailedPost';
 import { useAuth, AuthProvider } from './components/AuthContext';
@@ -16,13 +17,13 @@ const PrivateRoute = ({ children }) => {
 };
 
 function App() {
-  //Añadir la ruta MyProfile que recibe un parametro user_id
   return (
 
     <AuthProvider>
     <Router>
       <div>
         <Routes>
+          <Route path="/profile/:user_id" element={<PrivateRoute><ThirdPersonProfile /></PrivateRoute>} />
           <Route path="/post/:post_id" element={<PrivateRoute><DetailedPost /></PrivateRoute>} />
           <Route path="/editpost/:post_id" element={<PrivateRoute><EditPost /></PrivateRoute>} />
           <Route path="/myprofile/:user_id" element={<PrivateRoute><MyProfile /></PrivateRoute>} />

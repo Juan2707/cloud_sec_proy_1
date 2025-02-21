@@ -1,10 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import { get_tags_by_post, get_my_calification_on_post, get_user } from '../services/Api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
 import NonEditableTag from './NonEditableTag';
 import Calificate from './Calificate';
-import DetailedPost from './DetailedPost';
 function Post({data, onRefresh }) {
   const [username, setUsername] = useState('');
   const { user } = useAuth();
@@ -66,6 +65,7 @@ function Post({data, onRefresh }) {
       <h2>{data.title}</h2>
       <p>{data.content}</p>
       <small>By {username} on {data.publication_date}</small>
+      <Link to={`/profile/${data.author_id}`}>{username}</Link>
       <h2>With Calification {data.avg_calification} of {data.amount_califications} users</h2>
       <h2>Tags</h2>
       {tags.map((tag) => (

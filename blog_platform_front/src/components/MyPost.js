@@ -3,7 +3,6 @@ import Post from './Post';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { makePostPrivate, makePostPublic, delete_post } from '../services/Api';
-import EditPost from '../views/Feed/EditPost';
 
 function MyPost({data, onRefresh}) {
     const { user } = useAuth();
