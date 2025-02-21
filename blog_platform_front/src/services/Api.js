@@ -49,6 +49,48 @@ export const login = async (email, password) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
+
+export const get_user = async (id,token) => {
+    try{
+        const response = await fetch(`${BASE_URL}/user/${id}`,{
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        if(!response.ok){
+            return { error: true, message: data.detail || 'Error al obtener el usuario' };
+        }
+        return { error: false, data };
+    }
+    catch(error){
+        console.error('Error al obtener el usuario', error);
+        return { error: true, message: 'Error de conexión o problema en el servidor' };
+    }
+
+}
+
+export const get_my_user = async (token) => {
+    try{
+        const response = await fetch(`${BASE_URL}/myuser`,{
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        if(!response.ok){
+            return { error: true, message: data.detail || 'Error al obtener el usuario' };
+        }
+        return { error: false, data };
+    }
+    catch(error){
+        console.error('Error al obtener el usuario', error);
+        return { error: true, message: 'Error de conexión o problema en el servidor' };
+    }
+}
+
 //Incorporated
 export const newPost = async (title, content, isPrivate, token) => {
     try{
@@ -116,7 +158,7 @@ export const makePostPrivate = async (post_id, token) => {
 
 export const getPostsByUser = async (author_id, token) => {
     try{
-        const response = await fetch(`${BASE_URL}/post/${author_id}/posts`,{
+        const response = await fetch(`${BASE_URL}/post/user/${author_id}/posts`,{
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -216,7 +258,7 @@ export const delete_post = async (post_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+//Incorporated
 export const calificate_post = async (post_id, calification, token) => {
     try{
         const response = await fetch(`${BASE_URL}/calificate`,{
@@ -238,7 +280,7 @@ export const calificate_post = async (post_id, calification, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+//Incorporated
 export const get_my_calification_on_post = async(post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/calificate/${post_id}`,{
@@ -278,7 +320,7 @@ export const get_post_with_calification = async(post_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+//Incorporated
 export const update_calification = async(calification_id, post_id, calification, token) => {
     try{
         const response = await fetch(`${BASE_URL}/calificate/${calification_id}`,{
@@ -407,6 +449,26 @@ export const link_tag_to_post = async(post_id, tag_id, token) => {
     }
 }
 
+export const unlink_tag_from_post = async(post_id, tag_id, token) => {
+    try{
+        const response = await fetch(`${BASE_URL}/tag/${tag_id}/post/${post_id}`,{
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }); 
+        const data = await response.json();
+        if(!response.ok){
+            return { error: true, message: data.detail || 'Error al desvincular el tag del post' };
+        }
+        return { error: false, data };
+    }
+    catch(error){
+        console.error('Error al desvincular el tag del post', error);
+        return { error: true, message: 'Error de conexión o problema en el servidor' };
+    }
+}
+//Incorporated
 export const get_tags_by_post = async(post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/tag/post/${post_id}`,{

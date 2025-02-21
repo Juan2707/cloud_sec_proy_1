@@ -38,9 +38,9 @@ function CreatePost() {
 
   const handleCreateTag = async (tag) => {
     try{
-      console.log('Creating tag', tag);
+      
       const new_tag = await create_tag(tag, user.access_token);
-      console.log('New tag', new_tag);
+      
       setTags([...tags, new_tag]);
       setThereIsChange(!thereIsChange);
     }
@@ -66,9 +66,9 @@ function CreatePost() {
     e.preventDefault();
     try{
        const post_created =await newPost(title, content, privatePost, user.access_token);
-       console.log('Post created', post_created);
+       
       const selectedTags = getSelectedTags();
-      console.log('Selected tags', selectedTags);
+      
       for (let i=0; i<selectedTags.length; i++){
         //const new_tag = await create_tag(selectedTags[i]);
         await link_tag_to_post(post_created.data.id, selectedTags[i], user.access_token);

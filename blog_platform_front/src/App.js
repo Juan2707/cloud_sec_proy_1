@@ -1,13 +1,14 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Home from './views/Home';
 import Login from './views/Login/Login'; 
 import Register from './views/Register/Register';
 import Feed from './views/Feed/Feed';
 import CreatePost from './views/Feed/CreatePost';
-//import EditPost from './views/EditPost';
+import MyProfile from './views/Feed/MyProfile';
+import EditPost from './views/Feed/EditPost';
+import DetailedPost from './components/DetailedPost';
 import { useAuth, AuthProvider } from './components/AuthContext';
-import { Navigate } from 'react-router-dom';
 
 const PrivateRoute = ({ children }) => {
   const { user } = useAuth();
@@ -15,14 +16,16 @@ const PrivateRoute = ({ children }) => {
 };
 
 function App() {
-  //<Route path="/edit/:postId" element={<PrivateRoute><EditPost /></PrivateRoute> }/>
+  //Añadir la ruta MyProfile que recibe un parametro user_id
   return (
 
     <AuthProvider>
     <Router>
       <div>
         <Routes>
-          
+          <Route path="/post/:post_id" element={<PrivateRoute><DetailedPost /></PrivateRoute>} />
+          <Route path="/editpost/:post_id" element={<PrivateRoute><EditPost /></PrivateRoute>} />
+          <Route path="/myprofile/:user_id" element={<PrivateRoute><MyProfile /></PrivateRoute>} />
           <Route path="/create" element={<PrivateRoute><CreatePost /></PrivateRoute>} />
           <Route path="/feed" element={<PrivateRoute><Feed /></PrivateRoute>} />
           <Route path="/register" element={<Register />} />

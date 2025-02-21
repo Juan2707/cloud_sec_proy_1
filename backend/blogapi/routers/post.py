@@ -228,9 +228,26 @@ async def get_tag(tag_id: int, current_user: Annotated[User, Depends(get_current
 @router.post("/tag/post", response_model=TagPost, status_code=201)
 async def create_tag_post(tag_post: TagPostIn, current_user: Annotated[User, Depends(get_current_user)]):
     await verify_post_owner(tag_post.post_id, current_user)
+    #verificar que la etiqueta exista
+    query = post_tag_table.select().where(post_tag_table.c.tag_id == tag_post.tag_id, post_tag_table.c.post_id == tag_post.post_id)
+    record = await database.fetch_one(query)
+    if record:
+        raise HTTPException(status_code=400, detail="Tag already assigned to post")
     query = post_tag_table.insert().values(tag_post.dict())
     last_record_id = await database.execute(query)
     return {**tag_post.dict(), "id": last_record_id}
+
+@router.delete("/tag/{tag_id}/post/{post_id}")
+async def delete_tag_post(tag_id: int, post_id: int, current_user: Annotated[User, Depends(get_current_user)]):
+    await verify_post_owner(post_id, current_user)
+    #verificar que la etiqueta exista
+    query = post_tag_table.select().where(post_tag_table.c.tag_id == tag_id, post_tag_table.c.post_id == post_id)
+    tag_post = await database.fetch_one(query)
+    if not tag_post:
+        raise HTTPException(status_code=404, detail="Tag not found")
+    query = post_tag_table.delete().where(post_tag_table.c.tag_id == tag_id, post_tag_table.c.post_id == post_id)
+    await database.execute(query)
+    return {"message": "Tag deleted successfully"}
 
 #obtener todas las etiquetas de un post
 @router.get("/tag/post/{post_id}", response_model=list[Tag])
