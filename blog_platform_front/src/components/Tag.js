@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {addTag, removeTag} from '../services/DataInterface';
 
-function Tag({id, name, isSelected }) {
+function Tag({id, name, isSelected, onChange }) {
   const [buttonColor, setButtonColor] = useState('white');
   const [textColor, setTextColor] = useState('black');
 
@@ -14,6 +14,7 @@ function Tag({id, name, isSelected }) {
   }, [isSelected]);
 
   const toggleButtonColor = () => {
+    onChange();
     setButtonColor(prevColor => {
         if(prevColor === 'blue') {
             removeTag(id);

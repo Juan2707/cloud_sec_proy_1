@@ -528,3 +528,62 @@ export const get_from_user_posts_by_tag = async(author_id, tag_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
+
+export const get_from_user_posts_by_tags = async (author_id, tags, token) => {
+    try{
+        const response = await fetch(`${BASE_URL}/user/${author_id}/posts/by-tags`,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({tag_ids: tags}),
+        });
+        const data = await response.json();
+        if(!response.ok){
+            return { error: true, message: data.detail || 'Error al obtener los posts del tag' };
+        }
+        //descartar en la data los posts repetidos
+        for (let i = 0; i < data.length; i++){
+            for (let j = i+1; j < data.length; j++){
+                if (data[i].id === data[j].id){
+                    //La función splice elimina un elemento en la posición j
+                    data.splice(j,1);
+                }
+            }
+        }
+        return { error: false, data };
+    }
+    catch(error){
+        console.error('Error al obtener los posts del tag', error);
+        return { error: true, message: 'Error de conexión o problema en el servidor' };
+    }
+}
+
+export const get_posts_by_tags = async (tags, token) => {
+    try{
+        const response = await fetch(`${BASE_URL}/posts/by-tags`,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`},
+            body: JSON.stringify({tag_ids: tags}),
+        });
+        const data = await response.json();
+        if(!response.ok){
+            return { error: true, message: data.detail || 'Error al obtener los posts del tag' };
+        }
+        for (let i = 0; i < data.length; i++){
+            for (let j = i+1; j < data.length; j++){
+                if (data[i].id === data[j].id){
+                    //La función splice elimina un elemento en la posición j
+                    data.splice(j,1);
+                }
+            }
+        }
+        return { error: false, data };
+    }
+    catch(error){
+        console.error('Error al obtener los posts del tag', error);
+        return { error: true, message: 'Error de conexión o problema en el servidor' };
+    }
+}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-//import TagCreation from '../../components/TagCreation';
 import { get_all_tags, newPost, link_tag_to_post, create_tag } from '../../services/Api';
 import Tag from '../../components/Tag';
 import {getSelectedTags, clearSelectedTags} from '../../services/DataInterface';
@@ -16,8 +15,12 @@ function CreatePost() {
   const [thereIsChange, setThereIsChange] = useState(false);
   const [buttonColors, setButtonColors] = useState(["white","black","Private Post"]);
   const [privatePost, setPrivatePost] = useState(true);
+  const [trigger, setTrigger] = useState(false);
   const navigate = useNavigate();
 
+  const refresh = () =>{
+    setTrigger(!trigger);
+  }
 
   useEffect(() =>{
     const cargarTags = async() =>{
@@ -105,7 +108,7 @@ function CreatePost() {
     </button>
     <br />
       {tags.map(tag => (
-          <Tag key={tag.id} {...tag} />
+          <Tag key={tag.id} {...tag} onChange={refresh}/>
         ))}
         <input type="text" value={newTag} onChange={handleChange} onKeyDown={handleKeyDown} placeholder="New Tags here..."/>
         <br />

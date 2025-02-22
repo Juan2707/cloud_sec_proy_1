@@ -18,7 +18,12 @@ function EditPost() {
   const [thereIsChange, setThereIsChange] = useState(false);
   const [buttonColors, setButtonColors] = useState(["white","black","Private Post"]);
   const [privatePost, setPrivatePost] = useState(true);
+  const [trigger, setTrigger] = useState(false);
   const navigate = useNavigate();
+
+  const refresh = () =>{
+    setTrigger(!trigger);
+  }
 
 
   useEffect(() =>{
@@ -140,7 +145,7 @@ function EditPost() {
       {buttonColors[2]}
     </button>
     <br />{tags.map(tag => (
-    <Tag key={tag.id} id={tag.id} name={tag.name} isSelected={selectedTags.includes(tag.id)} />
+    <Tag key={tag.id} id={tag.id} name={tag.name} isSelected={selectedTags.includes(tag.id)} onChange={refresh} />
 ))}
 
         <input type="text" value={newTag} onChange={handleChange} onKeyDown={handleKeyDown} placeholder="New Tags here..."/>

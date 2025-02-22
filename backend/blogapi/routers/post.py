@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
-from typing import Annotated
+from fastapi import APIRouter, HTTPException, Depends, Query
+from typing import Annotated, List
 from datetime import datetime
 from blogapi.database import post_table, database, calification_table, tag_table, post_tag_table, user_table
-from blogapi.models.post import UserPost, UserPostIn, CalificationPost, CalificationPostIn, UserPostWithMyCalification, Tag, TagPost, TagIn, TagPostIn
+from blogapi.models.post import UserPost, UserPostIn, CalificationPost, CalificationPostIn, UserPostWithMyCalification, Tag, TagPost, TagIn, TagPostIn, PostQuery
 from blogapi.models.user import User, UserWithPosts
 from blogapi.security import get_current_user
 from sqlalchemy import select, func
@@ -265,6 +265,44 @@ async def get_post_by_tag(tag_id: int, current_user: Annotated[User, Depends(get
     #Ademas la query debe filtrar los post privados
     query = post_table.join(post_tag_table).select().where(post_tag_table.c.tag_id == tag_id, post_table.c.private == False)
     return await database.fetch_all(query)
+
+@router.post("/posts/by-tags", response_model=list[UserPost])
+async def get_posts_by_tags(query: PostQuery, current_user: User = Depends(get_current_user)):
+    if not query.tag_ids:
+        raise HTTPException(status_code=400, detail="Tag IDs list cannot be empty")
+    
+    query_statement = select(post_table).select_from(
+    post_table.join(post_tag_table, post_table.c.id == post_tag_table.c.post_id)
+).where(
+    post_tag_table.c.tag_id.in_(query.tag_ids),  # Aquí usamos 'in_' para múltiples tags
+    post_table.c.private == False
+)
+    
+    posts = await database.fetch_all(query_statement)
+    return posts
+
+#get user post by tagss
+@router.post("/user/{author_id}/posts/by-tags", response_model=list[UserPost])
+async def get_user_post_by_tags(author_id: str, query: PostQuery, current_user: Annotated[User, Depends(get_current_user)]):
+    data = {}
+    if author_id == f"{current_user.id}":
+        query_statement = select(post_table).select_from(
+            post_table.join(post_tag_table, post_table.c.id == post_tag_table.c.post_id)
+        ).where(
+            (post_tag_table.c.tag_id.in_(query.tag_ids)) & (post_table.c.author_id == author_id)
+        )
+        data = await database.fetch_all(query_statement)
+    else:
+        query1 = user_table.select().where(user_table.c.id == author_id)
+        user = await database.fetch_one(query1)
+        query_statement = select(post_table).select_from(
+            post_table.join(post_tag_table, post_table.c.id == post_tag_table.c.post_id)
+        ).where(
+            (post_tag_table.c.tag_id.in_(query.tag_ids)) & (post_table.c.author_id == author_id) & (post_table.c.private == False)
+        )
+        data = await database.fetch_all(query_statement)
+    return data
+
 
 #get user posts by tag
 @router.get("/user/{author_id}/posts/tag/{tag_id}", response_model=UserWithPosts)
