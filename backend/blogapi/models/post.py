@@ -1,5 +1,5 @@
 from pydantic import BaseModel, validator
-from typing import Optional
+from typing import Optional, List
 import bleach
 
 class UserPostIn(BaseModel):
@@ -64,3 +64,5 @@ class CalificationIn(BaseModel):
     calification: float
     post_id: int
 
+class PostQuery(BaseModel):
+    tag_ids: List[int]
