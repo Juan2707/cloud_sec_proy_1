@@ -11,7 +11,12 @@ function Post({data, onRefresh }) {
   const [myCalification, setMyCalification] = useState(0);
   const navigate = useNavigate();
   const [calification_id, setCalification_id] = useState(0);
+  const [date, setDate] = useState('');
   useEffect(() =>{
+    
+    const date1 = new Date(data.publication_date);
+    const date2 = date1.toISOString().split('T');
+    setDate(date2[0]);
     const cargarTags = async() =>{
       try{
         const data1 = await get_tags_by_post(data.id, user.access_token);
@@ -61,19 +66,37 @@ function Post({data, onRefresh }) {
 
 
   return (
-    <div>
+    <div className='post-container'>
+    <div className='post-head'>
       <h2>{data.title}</h2>
-      <p>{data.content}</p>
-      <small>By {username} on {data.publication_date}</small>
-      <Link to={`/profile/${data.author_id}`}>{username}</Link>
-      <h2>With Calification {data.avg_calification} of {data.amount_califications} users</h2>
-      <h2>Tags</h2>
+      <div className = "post-head-grid-container">
+        <div>
+        <small>Author: </small>
+        <Link to={`/profile/${data.author_id}`}>{username}</Link>
+        </div>
+        <div>
+        <small> Fecha de publicación: {date}</small>
+        </div>
+      </div>
+    </div>
+    <div className='post-body'>
+    <p>{data.content}</p>
+    <h3>Tags</h3>
       {tags.map((tag) => (
         <NonEditableTag key={tag.id} name={tag.name} isSelected ={false} />
       ))}
-      <h2>Your Calification is {myCalification}</h2>
-      <Calificate myCalification={myCalification} token={user.access_token} post_id={data.id} onChange={onRefresh} calification_id={calification_id}/>
+      <div className="post-body-grid-container">
+        <div>
+        <h3>Calificacion: {data.avg_calification}</h3>
+        <small> {data.amount_califications} usuarios han calificado este Post</small>
+        </div>
+        <div>
+        <h3>Tu calificación es {myCalification}</h3>
+        <Calificate myCalification={myCalification} token={user.access_token} post_id={data.id} onChange={onRefresh} calification_id={calification_id}/>
+        </div>
+      </div>
       <button onClick={() => navigate(`/post/${data.id}`)}>Detalles</button>
+      </div>
     </div>
   );
 }

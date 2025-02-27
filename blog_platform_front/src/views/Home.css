@@ -1,0 +1,23 @@
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    align-items: center;
+    height: 100vh;
+    background-color: #798C8C;
+}
+
+.buttons-box {
+    background-color: #D7D9D7;
+    color: #59554C;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+button {
+    margin: 10pc 0;
+    display: block;
+    width: 100%;
+}

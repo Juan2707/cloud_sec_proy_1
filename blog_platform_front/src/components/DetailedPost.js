@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { get_tags_by_post, get_my_calification_on_post, get_user, get_single_post } from '../services/Api';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
 import NonEditableTag from './NonEditableTag';
 import Calificate from './Calificate';
+import './DetailedPost.css';
 
 function DetailedPost() {
   const { post_id } = useParams(); // Asegúrate de usar useParams para obtener post_id
@@ -15,8 +16,10 @@ function DetailedPost() {
   const [myCalification, setMyCalification] = useState(0);
   const [calification_id, setCalification_id] = useState(0);
   const [refresh, setRefresh] = useState(false);
+  const [date, setDate] = useState('');
 
   useEffect(() => {
+    
     async function fetchData() {
       try {
         const postData = await get_single_post(post_id, user.access_token);
@@ -43,6 +46,9 @@ function DetailedPost() {
     }
 
     fetchData();
+    const date1 = new Date(data.publication_date);
+    const date2 = date1.toISOString().split('T');
+    setDate(date2[0]);
   }, [post_id, user.access_token, navigate, refresh]); // Use refresh as a trigger for re-fetching
 
   const onRefresh = () => {
@@ -50,17 +56,37 @@ function DetailedPost() {
   };
 
   return (
-    <div>
+    <div className='post-container'>
+    <div className='post-head'>
       <h2>{data.title}</h2>
-      <p>{data.content}</p>
-      <small>By {username} on {data.publication_date}</small>
-      <h2>With Calification {data.avg_calification} of {data.amount_califications} users</h2>
-      <h2>Tags</h2>
+      <div className = "post-head-grid-container">
+        <div>
+        <small>Author: </small>
+        <Link to={`/profile/${data.author_id}`}>{username}</Link>
+        </div>
+        <div>
+        <small> Fecha de publicación: {date}</small>
+        </div>
+      </div>
+    </div>
+    <div className='post-body'>
+    <p>{data.content}</p>
+    <h3>Tags</h3>
       {tags.map((tag) => (
-        <NonEditableTag key={tag.id} name={tag.name} isSelected={false} />
+        <NonEditableTag key={tag.id} name={tag.name} isSelected ={false} />
       ))}
-      <h2>Your Calification is {myCalification}</h2>
-      <Calificate myCalification={myCalification} token={user.access_token} post_id={post_id} onChange={onRefresh} calification_id={calification_id}/>
+      <div className="post-body-grid-container">
+        <div>
+        <h3>Calificacion: {data.avg_calification}</h3>
+        <small> {data.amount_califications} usuarios han calificado este Post</small>
+        </div>
+        <div>
+        <h3>Tu calificación es {myCalification}</h3>
+        <Calificate myCalification={myCalification} token={user.access_token} post_id={data.id} onChange={onRefresh} calification_id={calification_id}/>
+        </div>
+      </div>
+      <button onClick={() => navigate(`/post/${data.id}`)}>Detalles</button>
+      </div>
     </div>
   );
 }

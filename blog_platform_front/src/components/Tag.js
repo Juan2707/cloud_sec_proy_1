@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import {addTag, removeTag} from '../services/DataInterface';
 
 function Tag({id, name, isSelected, onChange }) {
-  const [buttonColor, setButtonColor] = useState('white');
+  const [buttonColor, setButtonColor] = useState('#AEBFBE');
   const [textColor, setTextColor] = useState('black');
 
   // Función para cambiar el color del botón
   useEffect(() => {
     if(isSelected) {
-      setButtonColor('blue');
+      setButtonColor('#003d39');
       setTextColor('white');
     }
   }, [isSelected]);
@@ -16,13 +16,13 @@ function Tag({id, name, isSelected, onChange }) {
   const toggleButtonColor = () => {
     onChange();
     setButtonColor(prevColor => {
-        if(prevColor === 'blue') {
+        if(prevColor === '#003d39') {
             removeTag(id);
-            return 'white';
+            return '#AEBFBE';
         }
         else {
             addTag(id);
-            return 'blue';
+            return '#003d39';
         }
     });
     setTextColor(prevColor => {
@@ -36,12 +36,14 @@ function Tag({id, name, isSelected, onChange }) {
   };
 
   return (
+    <div>
     <button
       onClick={toggleButtonColor}
       style={{ backgroundColor: buttonColor, color: textColor }}
     >
       {name}
     </button>
+    </div>
   );
 }
 

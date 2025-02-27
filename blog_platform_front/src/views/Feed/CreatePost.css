@@ -1,0 +1,111 @@
+.feed-tag {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 5px;
+}
+
+.feed-tag button {
+    width: calc(100%);
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background-color: #AEBFBE;
+    color: black;
+    border: none;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+.grid-container button {
+    width: calc(50%);
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background-color: #AEBFBE;
+    color: black;
+    border: none;
+    cursor: pointer;
+    border-radius: 15px;
+}
+.newpost-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .creation-container{
+    width: calc(100%);
+    justify-content:center;
+    align-items: center;
+    height: 100vh;
+    background-color: #798C8C;
+    
+  }
+  .newpost-box {
+    background-color: #D7D9D7;
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 15px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #ffffff;
+  }
+  .grid-container {
+    
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+  input {
+    width: 80%;
+  }
+  textarea {
+    width: 80%;
+    height: 100px;
+  }
+
+  .post-container {
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    width: calc(90%);
+    padding: 20px;
+}
+.post-head {
+    width: calc(100%);
+    background-color: #797979;
+    color: #000000;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.post-body {
+    width: calc(100%);
+    background-color: #D7D9D7;
+    color: #59554C;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+.post-head-grid-container{
+    display: grid;
+    grid-template-columns: 3fr  1fr;
+    gap: 10px;
+    padding: 10px;
+}
+.post-body-grid-container{
+    display: grid;
+    grid-template-columns: 4fr  1fr;
+    gap: 10px;
+    padding: 10px;
+}

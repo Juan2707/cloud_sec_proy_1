@@ -1,0 +1,29 @@
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #798C8C;
+  }
+  
+  .register-box {
+    background-color: #D7D9D7;
+    color: #59554C;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  input,
+  button {
+    margin: 5px 0;
+    display: block;
+    width: 100%;
+  }
+
+  h3{
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+  

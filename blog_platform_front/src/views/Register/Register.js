@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Luego aqui irá el import de un .css
+import './Register.css';
 import { register } from '../../services/Api';
 
 function Register() {
@@ -38,10 +38,12 @@ function Register() {
   };
 
   return (
-    <div>
+    <div className="register-container">
+      <div className="register-box">
       <h2>Registrarse</h2>
+      
       <form onSubmit={handleRegister}>
-        <h3> Ingresa tus datos</h3>
+        <h3> Ingresa tus datos </h3>
         <label>
           Email:
           <br />
@@ -68,6 +70,7 @@ function Register() {
         <br />
         <button type="submit">Register</button>
       </form>
+      </div>
     </div>
   );
 }

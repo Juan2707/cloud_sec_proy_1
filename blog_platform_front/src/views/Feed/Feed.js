@@ -5,6 +5,7 @@ import Post from '../../components/Post';
 import { get_all_public_posts, get_my_user, get_all_tags, get_posts_by_tags } from '../../services/Api';
 import { useAuth } from '../../components/AuthContext';
 import Tag from '../../components/Tag';
+import './Feed.css';
 import { getRemovedTags, getSelectedTags, clearRemovedTags, clearSelectedTags } from '../../services/DataInterface';
 
 
@@ -80,18 +81,26 @@ function Feed() {
   }
 
   return (
-    <div>
-      
+    <div className='feed-grid-container'>
+    <div className='feed-container'>
+      <div className='feed-tag'>
       {tags.map(tag => (
           <Tag key={tag.id} {...tag} onChange={refresh}/>
         ))}
-      <button onClick={() => onClickButton(`/myprofile/${user_id}`)}>My Profile</button>
+      </div>
+      
+      
       <h1>Feed</h1>
       {posts.map((post) => (
         <Post key={post.id} data={post} onRefresh={refresh}/>
       ))}
-      <button onClick={() => onClickButton('/create')}>Crear Post</button>
+      
     </div>
+    <div className='feed-profile'>
+    <button onClick={() => onClickButton(`/myprofile/${user_id}`)}>My Profile</button>
+    <button onClick={() => onClickButton('/create')}>Crear Post</button>
+      </div>
+      </div>
   );
 }
 
