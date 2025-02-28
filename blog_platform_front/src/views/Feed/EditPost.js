@@ -5,6 +5,7 @@ import { get_all_tags, unlink_tag_from_post, link_tag_to_post, create_tag, get_s
 import Tag from '../../components/Tag';
 import {getSelectedTags, clearSelectedTags, getRemovedTags, clearRemovedTags} from '../../services/DataInterface';
 import { useAuth } from '../../components/AuthContext';
+import './CreatePost.css';
 
 function EditPost() {
     const { post_id } = useParams();
@@ -124,32 +125,44 @@ function EditPost() {
 
   const toggleButtonColor = () => {
     setButtonColors(prevColors =>{
-      if(prevColors[0] === "white"){
+      if(prevColors[0] === "#AEBFBE"){
         setPrivatePost(false);
-        return ["blue","white", "Public Post"];
+        return ["#003d39","white", "Public Post"];
       }
       else{
         setPrivatePost(true);
-        return ["white","black", "Private Post"];
+        return ["#AEBFBE","black", "Private Post"];
       }
     });
   }
 
   return (
     <div>
-      <h1>Create Post</h1>
-      <button
+      <h1>Edit Post</h1>
+      <div className='newpost-container'>
+        <div className='creation-container'>
+        <div className='newpost-box'>
+        <br />
+          <div className='feed-tag'>
+      
+    {tags.map(tag => (
+    <Tag key={tag.id} id={tag.id} name={tag.name} isSelected={selectedTags.includes(tag.id)} onChange={refresh} />
+))}
+</div>
+<div className='grid-container'>
+<div>
+<button
       onClick={toggleButtonColor}
       style={{ backgroundColor: buttonColors[0], color: buttonColors[1] }}
     >
       {buttonColors[2]}
     </button>
-    <br />{tags.map(tag => (
-    <Tag key={tag.id} id={tag.id} name={tag.name} isSelected={selectedTags.includes(tag.id)} onChange={refresh} />
-))}
+</div>
+<div>
 
         <input type="text" value={newTag} onChange={handleChange} onKeyDown={handleKeyDown} placeholder="New Tags here..."/>
-        <br />
+        </div>
+        </div>
       <form onSubmit={handleSubmit}>
         <label>
           Title:
@@ -164,6 +177,40 @@ function EditPost() {
         
         <button type="submit">Update Post</button>
       </form>
+    </div>
+    </div>
+    <div className='post-container'>
+    <div className='post-head'>
+      <h2>{title}</h2>
+      <div className = "post-head-grid-container">
+        <div>
+        <small>Author: You</small>
+        
+        </div>
+        <div>
+        <small> Fecha de publicación: Today</small>
+        </div>
+      </div>
+    </div>
+    <div className='post-body'>
+    <p>{content}</p>
+    <h3>Tags</h3>
+      Your selected tags will me displayed here
+      <div className="post-body-grid-container">
+        <div>
+        <h3>Calificacion: 0</h3>
+        <small> 0 usuarios han calificado este Post</small>
+        </div>
+        <div>
+        <h3>Tu calificación es 0</h3>
+        <input type="text" value={0} placeholder={0}/>
+    
+        </div>
+      </div>
+      <button>Detalles</button>
+      </div>
+    </div>
+    </div>
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Aqui iria el import de css
 import { login } from '../../services/Api';
 import { useAuth } from '../../components/AuthContext';
+import './Login.css';
 // Tambien componentes del auth context para prevenir sql injection
 
 function Login() {
@@ -25,7 +25,8 @@ function Login() {
   };
 
   return (
-    <div>
+    <div className='login-container'>
+      <div className='login-box'>
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <label>
@@ -44,6 +45,7 @@ function Login() {
       </form>
       <h2>Aún no tienes cuenta?</h2>
       <button onClick={() => navigate('/register')}>Regístrate</button>
+      </div>
     </div>
   );
 }
