@@ -68,8 +68,10 @@ function Register() {
           <input type="password" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} />
         </label>
         <br />
-        <button type="submit">Register</button>
+        <button type="submit">Registrarse</button>
       </form>
+      ¿Ya tienes una cuenta?
+        <button onClick={() => navigate('/login')}>Inicia sesión aqui</button>
       </div>
     </div>
   );

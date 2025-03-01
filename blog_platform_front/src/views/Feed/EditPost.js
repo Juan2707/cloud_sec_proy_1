@@ -18,8 +18,10 @@ function EditPost() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [thereIsChange, setThereIsChange] = useState(false);
   const [buttonColors, setButtonColors] = useState(["white","black","Private Post"]);
-  const [privatePost, setPrivatePost] = useState(true);
+  const [privatePost, setPrivatePost] = useState(true);  
   const [trigger, setTrigger] = useState(false);
+  const [user_id, setUser_id] = useState('');
+  const [date, setDate] = useState('');
   const navigate = useNavigate();
 
   const refresh = () =>{
@@ -60,7 +62,12 @@ function EditPost() {
             
             setTitle(data.data.title);
             setContent(data.data.content);
-
+            setPrivatePost(data.data.private);
+            setUser_id(data.data.author_id);
+            const date1 = new Date(data.data.publication_date);
+            const date2 = date1.toISOString().split('T');
+            setDate(date2[0]);
+            
         }
         catch(error){
             console.error('Error fetching post', error);
@@ -70,8 +77,23 @@ function EditPost() {
         }
     };
     cargarPost();
-
+    
+    
   },[thereIsChange, location]);
+
+  useEffect(() => {
+    // Este efecto se ejecuta cada vez que privatePost cambia
+  
+    const colorButton = () => {
+      if(privatePost){
+        setButtonColors(["#AEBFBE","black", "Hacer Post Publico"]);
+      }
+      else{
+        setButtonColors(["#003d39","white", "Hacer Post Privado"]);
+      }
+    }
+    colorButton();
+  }, [privatePost]);
 
 
   const handleCreateTag = async (tag) => {
@@ -127,18 +149,19 @@ function EditPost() {
     setButtonColors(prevColors =>{
       if(prevColors[0] === "#AEBFBE"){
         setPrivatePost(false);
-        return ["#003d39","white", "Public Post"];
+        return["#003d39","white", "Hacer Post Privado"];
       }
       else{
         setPrivatePost(true);
-        return ["#AEBFBE","black", "Private Post"];
+        return ["#AEBFBE","black", "Hacer Post Publico"];
       }
     });
   }
 
   return (
     <div>
-      <h1>Edit Post</h1>
+      <h1>Editar Post</h1>
+      <button onClick={() =>navigate(`/myprofile/${user_id}`)}>Regresar a mi perfil</button>
       <div className='newpost-container'>
         <div className='creation-container'>
         <div className='newpost-box'>
@@ -160,22 +183,22 @@ function EditPost() {
 </div>
 <div>
 
-        <input type="text" value={newTag} onChange={handleChange} onKeyDown={handleKeyDown} placeholder="New Tags here..."/>
+        <input type="text" value={newTag} onChange={handleChange} onKeyDown={handleKeyDown} placeholder="Escribe nuevos Tags!"/>
         </div>
         </div>
       <form onSubmit={handleSubmit}>
         <label>
-          Title:
+          Titulo:
           <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
         </label>
         <br />
         <label>
-          Content:
+          Contenido:
           <textarea value={content} onChange={(e) => setContent(e.target.value)} />
         </label>
         <br />
         
-        <button type="submit">Update Post</button>
+        <button type="submit">Actualizar Post</button>
       </form>
     </div>
     </div>
@@ -184,18 +207,18 @@ function EditPost() {
       <h2>{title}</h2>
       <div className = "post-head-grid-container">
         <div>
-        <small>Author: You</small>
+        <small>Autor: You</small>
         
         </div>
         <div>
-        <small> Fecha de publicación: Today</small>
+        <small> Fecha de publicación: {date}</small>
         </div>
       </div>
     </div>
     <div className='post-body'>
     <p>{content}</p>
     <h3>Tags</h3>
-      Your selected tags will me displayed here
+    Los Tags seleccionados se verán aquí como lista al actualizar
       <div className="post-body-grid-container">
         <div>
         <h3>Calificacion: 0</h3>
@@ -203,7 +226,7 @@ function EditPost() {
         </div>
         <div>
         <h3>Tu calificación es 0</h3>
-        <input type="text" value={0} placeholder={0}/>
+        <input type="text" value={0} placeholder={0} readOnly/>
     
         </div>
       </div>

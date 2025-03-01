@@ -17,6 +17,7 @@ function DetailedPost() {
   const [calification_id, setCalification_id] = useState(0);
   const [refresh, setRefresh] = useState(false);
   const [date, setDate] = useState('');
+  const [myCalString, setMyCalString] = useState('');
 
   useEffect(() => {
     
@@ -28,6 +29,9 @@ function DetailedPost() {
           return;
         }
         setData(postData.data);
+        const date1 = new Date(postData.data.publication_date);
+        const date2 = date1.toISOString().split('T');
+        setDate(date2[0]);
         setUsername((await get_user(postData.data.author_id, user.access_token)).data.username);
         setTags((await get_tags_by_post(post_id, user.access_token)).data);
         const calData = await get_my_calification_on_post(post_id, user.access_token);
@@ -46,11 +50,15 @@ function DetailedPost() {
     }
 
     fetchData();
-    const date1 = new Date(data.publication_date);
-    const date2 = date1.toISOString().split('T');
-    setDate(date2[0]);
   }, [post_id, user.access_token, navigate, refresh]); // Use refresh as a trigger for re-fetching
 
+  useEffect(() => {
+    if (myCalification === -1) {
+      setMyCalString('No has calificado este Post');
+    } else {
+      setMyCalString(`Tu calificación es ${myCalification}`);
+    }
+  }, [myCalification]);
   const onRefresh = () => {
     setRefresh(prev => !prev);
   };
@@ -61,7 +69,7 @@ function DetailedPost() {
       <h2>{data.title}</h2>
       <div className = "post-head-grid-container">
         <div>
-        <small>Author: </small>
+        <small>Autor: </small>
         <Link to={`/profile/${data.author_id}`}>{username}</Link>
         </div>
         <div>
@@ -81,11 +89,11 @@ function DetailedPost() {
         <small> {data.amount_califications} usuarios han calificado este Post</small>
         </div>
         <div>
-        <h3>Tu calificación es {myCalification}</h3>
+        <h3>{myCalString}</h3>
         <Calificate myCalification={myCalification} token={user.access_token} post_id={data.id} onChange={onRefresh} calification_id={calification_id}/>
         </div>
       </div>
-      <button onClick={() => navigate(`/post/${data.id}`)}>Detalles</button>
+      <button onClick={() => navigate('/feed')}>Regresar al inicio</button>
       </div>
     </div>
   );

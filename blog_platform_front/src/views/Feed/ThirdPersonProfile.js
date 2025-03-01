@@ -44,9 +44,10 @@ function MyProfile() {
 
     return (
         <div>
-            <h1>Profile</h1>
-            <h2>Username: {username}</h2>
-            <h2> Posts</h2>
+            <h1>Perfil</h1>
+            <button onClick={() =>navigate('/feed')}>Regresar al inicio</button>
+            <h2>Usuario: {username}</h2>
+            <h2> Posts:</h2>
             {posts.map((post) => (
                 <Post key={post.id} data={post} onRefresh={refresh} />
             ))}

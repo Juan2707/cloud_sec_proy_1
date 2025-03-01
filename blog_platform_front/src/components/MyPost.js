@@ -8,14 +8,14 @@ function MyPost({data, onRefresh}) {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [isPrivate, setIsPrivate] = useState(false);
-    const [buttonValues, setButtonValues] = useState(["white", "black", "make private"]);
+    const [buttonValues, setButtonValues] = useState(["white", "black", "Hacer post publico"]);
     useEffect(() => {
         setIsPrivate(data.private);
         if (isPrivate) {
-            setButtonValues(["white", "black", "make public"]);
+            setButtonValues(["white", "black", "Hacer Post publico"]);
         }
         else {
-            setButtonValues(["black", "white", "make private"]);
+            setButtonValues(["black", "white", "Hacer Post privado"]);
         }
     }, [isPrivate, data]);
 
@@ -24,12 +24,12 @@ function MyPost({data, onRefresh}) {
             if (isPrivate) {
                 await makePostPublic(data.id, user.access_token);
                 setIsPrivate(false);
-                setButtonValues(["black", "white", "make private"]);
+                setButtonValues(["black", "white", "Hacer Post privado"]);
             }
             else {
                 await makePostPrivate(data.id, user.access_token);
                 setIsPrivate(true);
-                setButtonValues(["white", "black", "make public"]);
+                setButtonValues(["white", "black", "Hacer post publico"]);
             }
             onRefresh();
         }
@@ -59,8 +59,8 @@ function MyPost({data, onRefresh}) {
   return (
     <div>
       <Post key={data.id} data={data} onRefresh={onRefresh}/>
-      <button onClick={() => navigate(`/editpost/${data.id}`)}>Edit Post</button>
-        <button onClick={handleDelete}>Delete Post</button>
+      <button onClick={() => navigate(`/editpost/${data.id}`)}>Editar Post</button>
+        <button onClick={handleDelete}>Eliminar Post</button>
         <button onClick={handlePrivacy} style={{backgroundColor: buttonValues[0], color: buttonValues[1]}}>{buttonValues[2]}</button>
     </div>
   );
