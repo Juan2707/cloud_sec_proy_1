@@ -27,7 +27,7 @@ function Login() {
   return (
     <div className='login-container'>
       <div className='login-box'>
-      <h1>Login</h1>
+      <h1>Inicia sesión</h1>
       <form onSubmit={handleSubmit}>
         <label>
           Email:
@@ -41,7 +41,7 @@ function Login() {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </label>
         <br />
-        <button type="submit">Login</button>
+        <button type="submit">Inicia sesión</button>
       </form>
       <h2>Aún no tienes cuenta?</h2>
       <button onClick={() => navigate('/register')}>Regístrate</button>

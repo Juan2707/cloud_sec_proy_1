@@ -7,6 +7,7 @@ import { useAuth } from '../../components/AuthContext';
 import Tag from '../../components/Tag';
 import './Feed.css';
 import { getRemovedTags, getSelectedTags, clearRemovedTags, clearSelectedTags } from '../../services/DataInterface';
+import LogOutComponent from '../../components/LogOutComponent';
 
 
 
@@ -20,8 +21,6 @@ function Feed() {
   const [tags, setTags] = useState([]);
   
   useEffect(() =>{
-    console.log("Selected Tags",getSelectedTags())
-    console.log("Removed tags",getRemovedTags())
     const cargarTags = async() =>{
       try{
         const data = await get_all_tags(user.access_token);
@@ -90,15 +89,16 @@ function Feed() {
       </div>
       
       
-      <h1>Feed</h1>
+      <h1>Inicio</h1>
       {posts.map((post) => (
         <Post key={post.id} data={post} onRefresh={refresh}/>
       ))}
       
     </div>
     <div className='feed-profile'>
-    <button onClick={() => onClickButton(`/myprofile/${user_id}`)}>My Profile</button>
+    <button onClick={() => onClickButton(`/myprofile/${user_id}`)}>Mi perfil</button>
     <button onClick={() => onClickButton('/create')}>Crear Post</button>
+    <LogOutComponent />
       </div>
       </div>
   );

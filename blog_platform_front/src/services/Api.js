@@ -427,7 +427,6 @@ export const get_tag = async(tag_id, token) => {
 }
 //Incorporated
 export const link_tag_to_post = async(post_id, tag_id, token) => {
-    console.log(post_id, tag_id, token);
     try{
         const response = await fetch(`${BASE_URL}/tag/post`,{
             method: 'POST',

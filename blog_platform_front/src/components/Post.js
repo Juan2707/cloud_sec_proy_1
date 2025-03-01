@@ -12,6 +12,7 @@ function Post({data, onRefresh }) {
   const navigate = useNavigate();
   const [calification_id, setCalification_id] = useState(0);
   const [date, setDate] = useState('');
+  const [myCalString, setMyCalString] = useState('');
   useEffect(() =>{
     
     const date1 = new Date(data.publication_date);
@@ -64,6 +65,14 @@ function Post({data, onRefresh }) {
     cargarCalification();
   },[onRefresh]);
 
+  useEffect(() => {
+      if (myCalification === -1) {
+        setMyCalString('No has calificado este Post');
+      } else {
+        setMyCalString(`Tu calificación es ${myCalification}`);
+      }
+    }, [myCalification]);
+
 
   return (
     <div className='post-container'>
@@ -71,7 +80,7 @@ function Post({data, onRefresh }) {
       <h2>{data.title}</h2>
       <div className = "post-head-grid-container">
         <div>
-        <small>Author: </small>
+        <small>Autor: </small>
         <Link to={`/profile/${data.author_id}`}>{username}</Link>
         </div>
         <div>
@@ -91,7 +100,7 @@ function Post({data, onRefresh }) {
         <small> {data.amount_califications} usuarios han calificado este Post</small>
         </div>
         <div>
-        <h3>Tu calificación es {myCalification}</h3>
+        <h3>{myCalString}</h3>
         <Calificate myCalification={myCalification} token={user.access_token} post_id={data.id} onChange={onRefresh} calification_id={calification_id}/>
         </div>
       </div>
