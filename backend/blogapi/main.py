@@ -8,7 +8,7 @@ from blogapi.routers.user import router as user_router
 
 origins = [
     # Revisar cuando se suba a CLoud
-    "http://localhost:3000"
+    "http://192.168.20.29:3000"
 ]
 
 
