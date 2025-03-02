@@ -16,7 +16,8 @@ Debe añadirse o modificarse al momento del despliegue Cloud.
 
 """
 origins = [
-    "http://localhost:3000" #Origen permitido para el desarrollo local
+    # Revisar cuando se suba a CLoud
+    "http://192.168.20.29:3000"
 ]
 
 """

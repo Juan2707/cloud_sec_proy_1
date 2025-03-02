@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Servicio del Backend (Python con FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+   # env_file:
+    #  - /backend/.env
+    volumes:
+      - ./backend:/app
+   # depends_on:
+    #   - frontend
+    #  - db
+    #networks:
+     # - mynetwork
+
+  # Servicio del Frontend (React)
+  frontend:
+    build:
+      context: ./blog_platform_front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+       - backend
+   # networks:
+    #  - mynetwork
+
+  # (Opcional) Servicio de Base de Datos (Ejemplo con PostgreSQL)
+ # db:
+  #  image: postgres:13
+   # environment:
+    #  POSTGRES_USER: user
+     # POSTGRES_PASSWORD: password
+      #POSTGRES_DB: mydatabase
+    #volumes:
+     # - postgres_data:/var/lib/postgresql/data
+    #networks:
+     # - mynetwork
+
+#networks:
+ # mynetwork:
+  #  driver: bridge
+
+#volumes:
+ # postgres_data:
+  #  driver: local
+
