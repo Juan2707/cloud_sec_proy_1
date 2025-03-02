@@ -1,7 +1,13 @@
 const BASE_URL = "http://127.0.0.1:8000";
 
 
-//Incorporated
+/**
+ * Solicitud HTTP de regustro de nuevo usuario
+ * @param {string} email 
+ * @param {string} username 
+ * @param {string} password 
+ * @returns 
+ */
 export const register =  async (email, username, password) => {
     try{
         const response = await fetch(`${BASE_URL}/user`,{
@@ -23,7 +29,12 @@ export const register =  async (email, username, password) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 };
-//Incorporated
+/**
+ * Solicita un token de acceso al servidor, inicia sesión.
+ * @param {string} email 
+ * @param {string} password 
+ * @returns 
+ */
 export const login = async (email, password) => {
     try{
         const params = new URLSearchParams();
@@ -34,7 +45,7 @@ export const login = async (email, password) => {
             //aqui el body es x-www-form-urlencoded con Key username y Key password con los valores necesarios para el login
             body: params,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded' //EL tipo de contenido es particular aqui por motivos de seguridad
             }
         });
         
@@ -50,12 +61,18 @@ export const login = async (email, password) => {
     }
 }
 
+/**
+ * Solicitud HTTP para obtener un usuario por su id con token de acceso
+ * @param {number} id 
+ * @param {string} token 
+ * @returns 
+ */
 export const get_user = async (id,token) => {
     try{
         const response = await fetch(`${BASE_URL}/user/${id}`,{
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}` //Envio del token de acceso
             }
         });
         const data = await response.json();
@@ -70,13 +87,17 @@ export const get_user = async (id,token) => {
     }
 
 }
-
+/**
+ * Solicitud HTTP para obtener mi usuario con token de acceso
+ * @param {string} token 
+ * @returns 
+ */
 export const get_my_user = async (token) => {
     try{
         const response = await fetch(`${BASE_URL}/myuser`,{
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}` //Envio del token de acceso
             }
         });
         const data = await response.json();
@@ -91,7 +112,14 @@ export const get_my_user = async (token) => {
     }
 }
 
-//Incorporated
+/**
+ * Solicitud HTTP para crear un nuevo post con token de acceso
+ * @param {string} title 
+ * @param {string} content 
+ * @param {boolean} isPrivate 
+ * @param {string} token 
+ * @returns 
+ */
 export const newPost = async (title, content, isPrivate, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post`,{
@@ -113,7 +141,12 @@ export const newPost = async (title, content, isPrivate, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+/**
+ * Solicitud HTTP para hacer un post público con token de acceso
+ * @param {number} post_id 
+ * @param {string} token 
+ * @returns 
+ */
 export const makePostPublic = async (post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/${post_id}/public`,{
@@ -134,7 +167,12 @@ export const makePostPublic = async (post_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+/**
+ * Solicitudes HTTP para hacer un post privado con token de acceso
+ * @param {*} post_id 
+ * @param {*} token 
+ * @returns 
+ */
 export const makePostPrivate = async (post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/${post_id}/private`,{
@@ -156,12 +194,18 @@ export const makePostPrivate = async (post_id, token) => {
     }
 }
 
+/**
+ * Solicitud HTTP para obtener los posts de un usuario con token de acceso
+ * @param {number} author_id 
+ * @param {string} token 
+ * @returns 
+ */
 export const getPostsByUser = async (author_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/user/${author_id}/posts`,{
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}` //Envio del token de acceso
             }
         });
         const data = await response.json();
@@ -175,14 +219,18 @@ export const getPostsByUser = async (author_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-//Aún no get_all posts por que nadie tiene acceso a todos los posts
-//Incorporated
+//Aún no get_all posts por que nadie tiene acceso a todos los posts, nadie tiene derecho a ver todos los posts
+/**
+ * Soliciutd HTTP para obtener todos los posts públicos con token de acceso
+ * @param {string} token 
+ * @returns 
+ */
 export const get_all_public_posts = async (token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/public`,{
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}` //Envio del token de acceso
             }
         });
         const data = await response.json();
@@ -196,7 +244,12 @@ export const get_all_public_posts = async (token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+/**
+ * Solicitud HTTP para obtener un post individual con token de acceso
+ * @param {number} post_id 
+ * @param {string} token 
+ * @returns 
+ */
 export const get_single_post = async (post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/${post_id}`,{
@@ -216,7 +269,15 @@ export const get_single_post = async (post_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+/**
+ * Solicitud HTTP para editar un post con token de acceso
+ * @param {number} post_id 
+ * @param {string} title 
+ * @param {string} content 
+ * @param {boolean} isPrivate 
+ * @param {string} token 
+ * @returns 
+ */
 export const edit_post = async (post_id, title, content, isPrivate, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/${post_id}`,{
@@ -224,7 +285,7 @@ export const edit_post = async (post_id, title, content, isPrivate, token) => {
             body: JSON.stringify({title: title, content: content, private: isPrivate}),
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}` //Envio del token de acceso
             }
         });
         const data = await response.json();
@@ -238,7 +299,12 @@ export const edit_post = async (post_id, title, content, isPrivate, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+/**
+ * Soliciutd HTTP para eliminar un post con token de acceso
+ * @param {number} post_id 
+ * @param {string} token 
+ * @returns 
+ */
 export const delete_post = async (post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/${post_id}`,{
@@ -258,7 +324,13 @@ export const delete_post = async (post_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-//Incorporated
+/**
+ * Solicitud HTTP para calificar un post con token de acceso
+ * @param {number} post_id 
+ * @param {number} calification 
+ * @param {string} token 
+ * @returns 
+ */
 export const calificate_post = async (post_id, calification, token) => {
     try{
         const response = await fetch(`${BASE_URL}/calificate`,{
@@ -280,7 +352,12 @@ export const calificate_post = async (post_id, calification, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-//Incorporated
+/**
+ * Solicitud HTTP para obtener la calificación propia de un post con token de acceso
+ * @param {number} post_id 
+ * @param {string} token 
+ * @returns 
+ */
 export const get_my_calification_on_post = async(post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/calificate/${post_id}`,{
@@ -300,7 +377,12 @@ export const get_my_calification_on_post = async(post_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+/**
+ * Solicitud HTTP para obtener un post con su calificación con token de acceso
+ * @param {number} post_id 
+ * @param {string} token 
+ * @returns 
+ */
 export const get_post_with_calification = async(post_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/post/${post_id}/calification`,{
@@ -320,7 +402,14 @@ export const get_post_with_calification = async(post_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-//Incorporated
+/**
+ * Solicitud HTTP para actualizar la calificación de un post con token de acceso
+ * @param {number} calification_id 
+ * @param {number} post_id 
+ * @param {number} calification 
+ * @param {string} token 
+ * @returns 
+ */
 export const update_calification = async(calification_id, post_id, calification, token) => {
     try{
         const response = await fetch(`${BASE_URL}/calificate/${calification_id}`,{
@@ -342,7 +431,12 @@ export const update_calification = async(calification_id, post_id, calification,
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-
+/**
+ * Solicitud HTTP para eliminar la calificación de un post con token de acceso
+ * @param {number} calification_id 
+ * @param {string} token 
+ * @returns 
+ */
 export const delete_calification = async(calification_id, token) => {
     try{
         const response = await fetch(`${BASE_URL}/calificate/${calification_id}`,{
@@ -362,7 +456,12 @@ export const delete_calification = async(calification_id, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-//Incorporated
+/**
+ * Solicitud HTTP para crear una nueva etiqueta con token de acceso
+ * @param {string} tag 
+ * @param {string} token 
+ * @returns 
+ */
 export const create_tag = async(tag, token) => {
 
     try{
@@ -385,7 +484,11 @@ export const create_tag = async(tag, token) => {
         return { error: true, message: 'Error de conexión o problema en el servidor' };
     }
 }
-//Incorporated
+/**
+ * Solicitud HTTP 
+ * @param {*} token 
+ * @returns 
+ */
 export const get_all_tags = async(token) => {
     try{
         const response = await fetch(`${BASE_URL}/tags`,{
