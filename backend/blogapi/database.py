@@ -57,7 +57,8 @@ post_tag_table = sqlalchemy.Table(
 
 # Creación de la conexión a la base de datos
 # Se crea la conexión a la base de datos con la URL definida en el archivo de configuración
-engine = sqlalchemy.create_engine(config.DATABASE_URL, connect_args={"check_same_thread": False})
+#engine = sqlalchemy.create_engine(config.DATABASE_URL, connect_args={"check_same_thread": False})
+engine = sqlalchemy.create_engine(config.DATABASE_URL)
 
 # Se crean las tablas en la base de datos
 metadata.create_all(engine)
