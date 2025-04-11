@@ -1,47 +1,37 @@
-#Import relevantes para la creación de la aplicación FastAPI
-from contextlib import asynccontextmanager #Context manager para manejar el ciclo de vida de la aplicación
-from fastapi import FastAPI #Clase principal de FastAPI
-from fastapi.middleware.cors import CORSMiddleware #Middleware para manejar CORS
+# Import relevantes para la creación de la aplicación FastAPI
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-#Import de la definición de la base de datos
-from blogapi.database import database #Import de la base de datos para manejar la conexión y desconexión
+# Import de la definición de la base de datos
+from blogapi.database import database, create_tables
 
-#Import de los routers segmentados para mayor facilidad de mantenimiento y debugging
-from blogapi.routers.post import router as post_router #Import del router que maneja rutas de acciones sobre posts y sus subcaracterísticas
-from blogapi.routers.user import router as user_router #Import del router que maneja rutas de acciones sobre usuarios
+# Import de los routers
+from blogapi.routers.post import router as post_router
+from blogapi.routers.user import router as user_router
 
-"""
-Lista e origenes permitos para conectarse con la API
-Debe añadirse o modificarse al momento del despliegue Cloud.
-
-"""
+# Lista de orígenes permitidos para CORS (ajustar según entorno)
 origins = [
-    # Revisar cuando se suba a CLoud
-    "http://192.168.20.29:3000"
+    "http://192.168.20.29:3000",
+    "http://localhost:3000",
 ]
 
-"""
-Context manager para manejar el ciclo de vida de la aplicación
-Se encarga de conectar y desconectar la base de datos
-:params: app: FastAPI
-:return: None
-"""
+# Context manager para manejar el ciclo de vida de la aplicación
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await database.connect()
+    await create_tables()  # <<--- NUEVA LÍNEA: creación de tablas asincrónica
     yield
     await database.disconnect()
 
-# Creación de la aplicación FastAPI
+# Crear instancia de la aplicación
 app = FastAPI(lifespan=lifespan)
 
-#Inclusión de los routers en la aplicación
-app.include_router(post_router) #Inclusión del router de posts
-app.include_router(user_router) #Inclusión del router de usuarios
+# Routers
+app.include_router(post_router)
+app.include_router(user_router)
 
-"""
-Middlware para manejar CORS y evitar bloqueo de trafico entre frontend y backend. 
-"""
+# Middleware para CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
