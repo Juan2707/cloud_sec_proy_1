@@ -1,5 +1,5 @@
-const BASE_URL = "http://34.134.224.247:8000";
 
+const BASE_URL = "http://34.134.224.247:8000";
 
 /**
  * Solicitud HTTP de regustro de nuevo usuario

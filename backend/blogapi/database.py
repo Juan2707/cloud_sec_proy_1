@@ -1,4 +1,5 @@
-import databases
+from databases import Database
+from sqlalchemy.ext.asyncio import create_async_engine
 import sqlalchemy
 from blogapi.config import config
 
@@ -11,9 +12,9 @@ user_table = sqlalchemy.Table(
     "users",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),#Llave primaria de la tabla
-    sqlalchemy.Column("username", sqlalchemy.String),
-    sqlalchemy.Column("email", sqlalchemy.String, unique=True),#Se añade la unicidad del email
-    sqlalchemy.Column("password", sqlalchemy.String),
+    sqlalchemy.Column("username", sqlalchemy.String(length=255)),
+    sqlalchemy.Column("email", sqlalchemy.String(length=255), unique=True),#Se añade la unicidad del email
+    sqlalchemy.Column("password", sqlalchemy.String(length=255)),
 )
 # Tabla de calificaciones que sirve de puente muchos a muchos entre usuarios y posts
 calification_table = sqlalchemy.Table(
@@ -30,10 +31,10 @@ post_table = sqlalchemy.Table(
     "posts",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("title", sqlalchemy.String),
-    sqlalchemy.Column("content", sqlalchemy.String),
+    sqlalchemy.Column("title", sqlalchemy.String(length=255)),
+    sqlalchemy.Column("content", sqlalchemy.String(length=255)),
     sqlalchemy.Column("author_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id")),#Llave foranea del sueño del post
-    sqlalchemy.Column("publication_date", sqlalchemy.String),
+    sqlalchemy.Column("publication_date", sqlalchemy.String(length=255)),
     sqlalchemy.Column("private", sqlalchemy.Boolean),
     sqlalchemy.Column("avg_calification", sqlalchemy.Float),
     sqlalchemy.Column("amount_califications", sqlalchemy.Integer)
@@ -44,7 +45,7 @@ tag_table = sqlalchemy.Table(
     "tags",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("name", sqlalchemy.String)
+    sqlalchemy.Column("name", sqlalchemy.String(length=255))
 )
 # Tabla de muchos a muchos entre posts y tags
 post_tag_table = sqlalchemy.Table(
@@ -57,9 +58,17 @@ post_tag_table = sqlalchemy.Table(
 
 # Creación de la conexión a la base de datos
 # Se crea la conexión a la base de datos con la URL definida en el archivo de configuración
-#engine = sqlalchemy.create_engine(config.DATABASE_URL, connect_args={"check_same_thread": False})
-engine = sqlalchemy.create_engine(config.DATABASE_URL)
 
-# Se crean las tablas en la base de datos
-metadata.create_all(engine)
-database = databases.Database(config.DATABASE_URL, force_rollback=config.DB_FORCE_ROLL_BACK)
+# Motor de base de datos asincrónico
+DATABASE_URL = config.DATABASE_URL
+
+engine = create_async_engine(DATABASE_URL, echo=True)
+
+# Database para queries asincrónicas con la librería `databases`
+database = Database(DATABASE_URL, force_rollback=config.DB_FORCE_ROLL_BACK)
+
+# Función para crear las tablas
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(metadata.create_all)
+
