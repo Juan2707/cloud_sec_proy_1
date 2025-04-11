@@ -58,6 +58,7 @@ post_tag_table = sqlalchemy.Table(
 
 # Creación de la conexión a la base de datos
 # Se crea la conexión a la base de datos con la URL definida en el archivo de configuración
+
 # Motor de base de datos asincrónico
 DATABASE_URL = config.DATABASE_URL
 
@@ -70,3 +71,4 @@ database = Database(DATABASE_URL, force_rollback=config.DB_FORCE_ROLL_BACK)
 async def create_tables():
     async with engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
+

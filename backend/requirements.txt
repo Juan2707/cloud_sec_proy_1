@@ -13,3 +13,4 @@ pydantic[validator]
 bleach
 bcrypt
 aiomysql
+

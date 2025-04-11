@@ -12,8 +12,10 @@ from blogapi.routers.user import router as user_router
 
 # Lista de orígenes permitidos para CORS (ajustar según entorno)
 origins = [
-    "http://192.168.20.29:3000",
-    "http://localhost:3000",
+
+    # Revisar cuando se suba a CLoud
+    "http://34.134.224.247:3000"
+
 ]
 
 # Context manager para manejar el ciclo de vida de la aplicación
