@@ -12,6 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install google-cloud-secret-manager
 
+RUN pip install python-dotenv
+
 WORKDIR /root/cloud_sec_proy_1/backend/blogapi
 
 # Copia el resto del código
