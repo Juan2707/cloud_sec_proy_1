@@ -10,6 +10,8 @@ COPY requirements.txt ./
 # Instala las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install google-cloud-secret-manager
+
 WORKDIR /root/cloud_sec_proy_1/backend/blogapi
 
 # Copia el resto del código
